@@ -5,7 +5,7 @@ class UserController {
     async createUser(req, res) {
         try {
             const { name, email } = req.body;
-            if (!name || !email || !password) {
+            if (!name || !email) {
                 return res.status(400).json({ message: 'Name and Email are required' });
             }
 
