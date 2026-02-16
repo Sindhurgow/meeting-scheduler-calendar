@@ -1,65 +1,70 @@
-Meeting Scheduler API
-This is a backend api for sheduling meetings between users. it handles creating users, booking meetings with overlap detection and managing shedules. built using Node.js, Express and PostgreSQL.
+# Meeting Scheduler API 
 
-Features
-User creation and authentication
+This is a backend api for sheduling meetings between users. It handles creating users, booking meetings with overlap detection, and managing shedules. Built using **Node.js, Express, and PostgreSQL** with Sequelize ORM.
 
-Create meetings (checks for time conflicts)
-
-Get all meetings or filter by user
-
-Soft delete meetings (data is preserved)
-
-Standard CRUD operations
-
-Getting Started
-Follow these steps to get the project runing on your local machine.
-
-1. Clone the repo
-Open your terminal and run this command to download the code:
+## Features
+* **User Management**: Simple user creation to associate meetings.
+* **Conflict Detection**: Automatically checks for time conflicts (you can't book two meetings at the same time for the same user!).
+* **Duration Validation**: Prevents "impossible" meetings where the end time is before or equal to the start time.
+* **Advanced Filters**: Search meetings by `userId`, or a specific date range (`startDate` to `endDate`).
+* **Soft Delete**: Uses Sequelize "paranoid" mode so meetings are hidden from the API but preserved in the DB for audit.
+* **Standard CRUD**: Full support for updating and deleting meeting details.
 
 
-git clone https://github.com/Sindhurgow/meeting-scheduler.git
+
+---
+
+## Getting Started
+
+### 1. Clone the repo
+Open your terminal and run this command:
+```bash
+git clone [https://github.com/Sindhurgow/meeting-scheduler-calendar](https://github.com/Sindhurgow/meeting-scheduler-calendar)
 cd meeting-scheduler
-2. Install dependencies
-You need to install the node modules. make sure you have nodejs installed first.
 
 
+### 2. Install dependencies
+```bash
 npm install
-3. Setup .env
-Create a file named .env in the root folder. You need to configure your database connection here. add this variables to the file:
+```
 
-PORT=3000
-DB_NAME=meeting_db
-DB_USER=postgres
-DB_PASSWORD=yourpassword
-DB_HOST=localhost
-Make sure your postgres database is running in background.
+### 3. Set up your database
+- Create a PostgreSQL database.
+- Update the `config/config.json` file with your database credentials.
 
-4. Run migrations
-We are using sequelize to handle the database schema. The tables will be created automatically when you start the server because we use sync. just make sure the database meeting_db exists in your postgres.
+### 4. Run migrations
+```bash
+npx sequelize-cli db:migrate
+```
 
-5. Start server
-To run the api in dev mode with nodemon:
+### 5. Start the server
+```bash
+npm start
+```
 
+The server will start on `http://localhost:3000`.
 
-npm run dev
-If everything is ok you will see message "Database connected" and "Server running on port 3000".
+## API Endpoints
 
-API Endpoints
 Users
-
-POST /api/users - Create a new user
-
-GET /api/users/:id - Get user details
+- `POST /users` - Create a new user
+- `GET /users` - List all users
 
 Meetings
+- `POST /meetings` - Create a new meeting
+- `GET /meetings` - List all meetings
+- `GET /meetings?userId=1` - List meetings for a specific user
+- `GET /meetings?startDate=2023-11-01&endDate=2023-11-30` - List meetings within a date range
+- `PUT /meetings/:id` - Update a meeting
+- `DELETE /meetings/:id` - Delete a meeting
 
-POST /api/meetings - Book a meeting
+Technical Notes (The "Fine Print")
+Timezones: All dates must be sent in ISO 8601 format (UTC). For example: 2026-02-20T14:00:00Z.
 
-GET /api/meetings - Show all meetings
+Validation: If you try to book a meeting where startTime >= endTime, the API returns a 400 Bad Request.
 
-GET /api/meetings/user/:userId - Get meetings for specific user
+Conflict Logic: The overlap check ensures that start < existing_end AND end > existing_start.
 
-DELETE /api/meetings/:id - Remove a meeting
+Soft Deletes: Deleted meetings will have a deletedAt timestamp in the database but won't show up in regular GET reqeusts.
 
+Filter Logic: When using startDate and endDate filters, the API looks at the startTime of the meetings to filter.
