@@ -7,3 +7,7 @@ export const createUser = async (data: any) => {
 export const getUserById = async (id: string) => {
     return await User.findByPk(id);
 };
+
+export const getAllUsers = async () => {
+    return await User.findAll();
+};
